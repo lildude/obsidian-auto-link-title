@@ -42,4 +42,18 @@ export class CheckIf {
     return urlRegex.test(text);
   }
 
+  public static isGitHubUrl(text: string): boolean {
+    let urlRegex = new RegExp(DEFAULT_SETTINGS.githubUrlRegex);
+    return urlRegex.test(text);
+  }
+
+  public static isGitHubRepo(text: string): boolean {
+    let urlRegex = new RegExp(DEFAULT_SETTINGS.githubRepoRegex);
+    return urlRegex.test(text);
+  }
+
+  public static isGitHubIssuePr(text: string): boolean {
+    let urlRegex = new RegExp(DEFAULT_SETTINGS.githubIssuePrRegex);
+    return urlRegex.test(text);
+  }
 }

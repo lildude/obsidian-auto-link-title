@@ -7,8 +7,12 @@ export interface AutoLinkTitleSettings {
   linkRegex: RegExp;
   linkLineRegex: RegExp;
   imageRegex: RegExp;
+  githubUrlRegex: RegExp;
+  githubRepoRegex: RegExp;
+  githubIssuePrRegex: RegExp;
   shouldReplaceSelection: boolean;
   enhanceDefaultPaste: boolean;
+  useGitHubShortlinks: boolean;
 }
 
 export const DEFAULT_SETTINGS: AutoLinkTitleSettings = {
@@ -21,8 +25,14 @@ export const DEFAULT_SETTINGS: AutoLinkTitleSettings = {
   linkLineRegex:
     /\[([^\[\]]*)\]\((https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})\)/gi,
   imageRegex: /\.(gif|jpe?g|tiff?|png|webp|bmp|tga|psd|ai)$/i,
+
+  githubUrlRegex: /github\.com/i,
+  githubRepoRegex: /github\.com\/([^\/]+)\/([^\/]+)\b(?!\/)/i,
+  githubIssuePrRegex: /github\.com\/([^\/]+)\/([^\/]+)\/(issues|pull)\/(\d+)#?/i,
+
   shouldReplaceSelection: true,
   enhanceDefaultPaste: true,
+  useGitHubShortlinks: false,
 };
 
 export class AutoLinkTitleSettingTab extends PluginSettingTab {
@@ -49,6 +59,21 @@ export class AutoLinkTitleSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             console.log(value);
             this.plugin.settings.enhanceDefaultPaste = value;
+            await this.plugin.saveSettings();
+          })
+      );
+
+    new Setting(containerEl)
+      .setName("Use GitHub shortlinks instead of title")
+      .setDesc(
+        "Use GitHub shortlinks of the form :user/:repo#123 instead of the title of the link when pasting a link in the editor"
+      )
+      .addToggle((val) =>
+        val
+          .setValue(this.plugin.settings.useGitHubShortlinks)
+          .onChange(async (value) => {
+            console.log(value);
+            this.plugin.settings.useGitHubShortlinks = value;
             await this.plugin.saveSettings();
           })
       );

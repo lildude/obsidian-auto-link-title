@@ -158,6 +158,11 @@ export default class AutoLinkTitle extends Plugin {
   }
 
   async convertUrlToTitledLink(editor: Editor, url: string): Promise<void> {
+    // Instantly paste the title if this is a GitHub URL
+    if (this.settings.useGitHubShortlinks && CheckIf.isGitHubUrl(url)) {
+      this.convertUrlToGitHubShortlink(editor, url);
+      return;
+    }
     // Generate a unique id for find/replace operations for the title.
     const pasteId = `Fetching Title#${this.createBlockHash()}`;
 
@@ -181,6 +186,25 @@ export default class AutoLinkTitle extends Plugin {
 
       editor.replaceRange(title, startPos, endPos);
     }
+  }
+
+  async convertUrlToGitHubShortlink(editor: Editor, url: string): Promise<void> {
+    var shortlink;
+    if (CheckIf.isGitHubRepo(url)) {
+      let matches = url.match(DEFAULT_SETTINGS.githubRepoRegex);
+      if (matches) {
+        let [, owner, repo] = matches;
+        shortlink = `${owner}/${repo}`;
+      }
+    }
+    if (CheckIf.isGitHubIssuePr(url)) {
+      let matches = url.match(DEFAULT_SETTINGS.githubIssuePrRegex);
+      if (matches) {
+        let [, owner, repo, type, number] = matches;
+        shortlink = `${owner}/${repo}#${number}`;
+      }
+    }
+    editor.replaceSelection(`[${shortlink}](${url})`);
   }
 
   async fetchUrlTitle(url: string): Promise<string> {
